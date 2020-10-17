@@ -65,7 +65,7 @@ app.post('/api/login', (req, res) => {
 app.get('/api/dashboard',jwtMW, (req,res) => {
     res.json({
         success: true,
-        myContent: 'Secret content that only logged in people cam see.'
+        myContent: 'Secret content that only logged in people cam see!!!'
     });
 });
 
