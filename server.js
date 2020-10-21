@@ -1,9 +1,10 @@
 const express = require('express');
 const app = express();
+const path = require('path');
 const jwt = require('jsonwebtoken');
 const exjwt = require('express-jwt');
 const bodyParser = require('body-parser');
-const path = require('path');
+const PORT = 3000;
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -14,9 +15,9 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended : true}));
 
-const PORT = 3000;
 
 const secretKey = 'My super secret key';
+
 const jwtMW = exjwt({
     secret : secretKey,
     algorithms : ['HS256']
@@ -25,14 +26,14 @@ const jwtMW = exjwt({
 let users = [
   {
     id: 1,
-    username: 'sathwi',
+    username: 'sathwika',
     password: '2154',
   },
   {
     id: 2,
     username: 'samreen',
     password: '1326',
-  },
+  }
 ];
 
 
@@ -44,7 +45,7 @@ app.post('/api/login', (req, res) => {
       let token = jwt.sign(
         { id: user.id, username: user.username },
         secretKey,
-        { expiresIn: '7d' }
+        { expiresIn: 180 }
       );
       res.json({
         success: true,
@@ -65,14 +66,14 @@ app.post('/api/login', (req, res) => {
 app.get('/api/dashboard',jwtMW, (req,res) => {
     res.json({
         success: true,
-        myContent: 'Secret content that only logged in people cam see!!!'
+        myContent: 'Secret content that only logged in people can see!!!'
     });
 });
 
-app.get('/api/prices',jwtMW, (req,res) => {
+app.get('/api/settings',jwtMW, (req,res) => {
     res.json({
         success: true,
-        myContent: 'This is my price $3.99'
+        myContent: 'These are the settings'
     });
 });
 
@@ -81,17 +82,17 @@ app.get('/', (req, res) => {
 });
 
 app.use(function (err, req, res, next){
-    // console.log(err.name == 'UnauthorizedError');
-    // console.log(err);
-    if(err.name == 'UnauthorizedError'){
-        res.status(401).json({
-            success: false,
-            officialError : err,
-            err : 'Username or Password is incorrect 2'
-        });
-    } else {
-        next(err);
-    }
+  // console.log(err.name == 'UnauthorizedError');
+  // console.log(err);
+  if(err.name == 'UnauthorizedError'){
+      res.status(401).json({
+          success: false,
+          officialError : err,
+          err : 'Username or Password is incorrect 2'
+      });
+  } else {
+      next(err);
+  }
 
 });
 
