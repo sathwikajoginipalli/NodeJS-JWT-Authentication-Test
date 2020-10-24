@@ -94,7 +94,8 @@
       function tokenvalidation() {
         const token = localStorage.getItem("jwt");
         try {
-          var base64url = token.split(".")[1];
+          var tok = token;
+          var base64url = tok.split(".")[1];
           var decodedtokenValue = JSON.parse(window.atob(base64url));
           if (Date.now() >= decodedtokenValue.exp * 1000) {
             return false;
