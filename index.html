@@ -25,7 +25,7 @@
           <input type="text" name="username" id="username" />
         </div>
         <div class="row">
-          <label for="password">Password</label>
+          <label for="password">password</label>
           <input type="password" name="password" id="password" />
         </div>
         <div>
@@ -35,13 +35,17 @@
         </div>
       </main>
     </div>
+
     <script>
+      var token = "";
       function login() {
+        // history.pushState(null, null, "/")
         const data = {
           username: document.getElementById("username").value,
           password: document.getElementById("password").value,
         };
         axios.post("/api/login", data).then((res) => {
+          console.log(res);
           document.getElementById("username").value = "";
           document.getElementById("password").value = "";
           if (res && res.data && res.data.success) {
@@ -49,61 +53,73 @@
             localStorage.setItem("jwt", token);
             getDashboard();
             // getSettings();
-          } else {
-            console.log("error", res);
           }
         });
       }
-
-      function getDashboard(req) {
+    
+      function getDashboard() {
+        history.pushState(null, null, "/api/dashboard");
         const token = localStorage.getItem("jwt");
-        // console.log("token", token);
         axios
           .get("/api/dashboard", {
             headers: {
-              "Content-Type": "application/json",
-              Authorization: `${token}`,
-              "Test-Header": "test-value",
+              Authorization: `Bearer ${token}`,
             },
           })
-          .then((res, err) => {
+          .then((res) => {
             if (res && res.data && res.data.success) {
-              history.pushState(null, null, "api/dashboard");
               document.querySelector("h1.row").innerHTML = "Dashboard";
               document.querySelector("main").innerHTML = res.data.myContent;
-              setTimeout(function () {
-                window.location.href = "/";
-              }, 180000);
-            } else {
-              history.pushState(null, null, "/");
             }
           });
       }
 
       function getSettings() {
+        history.pushState(null, null, "/api/settings");
         const token = localStorage.getItem("jwt");
-        // console.log("token", token);
         axios
           .get("/api/settings", {
             headers: {
-              "Content-Type": "application/json",
-              Authorization: `${token}`,
-              "Test-Header": "test-value",
+              Authorization: `Bearer ${token}`,
             },
           })
-          .then((res, err) => {
+          .then((res) => {
             if (res && res.data && res.data.success) {
-              history.pushState(null, null, "api/settings");
               document.querySelector("h1.row").innerHTML = "Settings";
               document.querySelector("main").innerHTML = res.data.myContent;
-              setTimeout(function () {
-                window.location.href = "/";
-              }, 180000);
-            } else {
-              history.pushState(null, null, "/");
             }
           });
       }
+
+      function tokenvalidation() {
+        const token = localStorage.getItem("jwt");
+        try {
+          var base64url = token.split(".")[1];
+          var decodedtokenValue = JSON.parse(window.atob(base64url));
+          if (Date.now() >= decodedtokenValue.exp * 1000) {
+            return false;
+          }
+        } catch (err) {
+          return false;
+        }
+
+        return true;
+      }
+
+      function gettimeout() {
+        history.replaceState("http://localhost:3000", null , "/");
+        localStorage.clear();
+        window.location.reload();
+      }
+      setInterval(function () {
+        if (tokenvalidation()) {
+          // console.log("true");
+          getDashboard();
+        } else {
+          // console.log("false");
+          gettimeout();
+        }
+      }, 180 * 1000);
     </script>
   </body>
 </html>
